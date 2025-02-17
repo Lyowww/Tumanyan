@@ -1,4 +1,3 @@
-// api/submit.js
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 
@@ -59,8 +58,8 @@ function sendEmail(email, poem) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'amenayn.banastexc@gmail.com',
-            pass: 'arbu uaoh hgle qqks'
+            user: 'your-email@gmail.com', // Replace with your email
+            pass: 'your-email-password' // Replace with your email password or use environment variables
         }
     });
 
