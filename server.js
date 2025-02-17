@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const fs = require('fs');
+const cors = require('cors');
 
 const USERS_FILE = 'users.json';
 const POEMS = [
@@ -58,25 +59,82 @@ function sendEmail(email, poem) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'your-email@gmail.com', // Replace with your email
-            pass: 'your-email-password' // Replace with your email password or use environment variables
+            user: 'amenayn.banastexc@gmail.com',
+            pass: 'arbu uaoh hgle qqks'
         }
     });
 
     const mailOptions = {
-        from: '"Book Gift Day" <no-reply@yourdomain.com>',
+        from: '"Գիրք նվիրելու տոնի առթիվ" <no-reply@yourdomain.com>',
         to: email,
-        subject: 'Poem from Tumanyan',
-        html: `<html>
+        subject: 'Սիրով Թումանյանից',
+        html: `<!DOCTYPE html>
+            <html lang="en">
             <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Book Gift Day</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: #f4f4f4;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .email-container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        background-color: #ffffff;
+                        border-radius: 8px;
+                        overflow: hidden;
+                    }
+                    .email-header {
+                        background-color: #5f6368;
+                        color: #ffffff;
+                        padding: 20px;
+                        text-align: center;
+                    }
+                    .email-body {
+                        padding: 20px;
+                        color: #333333;
+                    }
+                    .email-footer {
+                        background-color: #eeeeee;
+                        padding: 10px;
+                        text-align: center;
+                        font-size: 12px;
+                        color: #777777;
+                    }
+                    h2 {
+                        color: #2c3e50;
+                    }
+                    p {
+                        font-size: 16px;
+                        line-height: 1.5;
+                    }
+                    .cta-button {
+                        background-color: #3498db;
+                        color: white;
+                        padding: 10px 15px;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
+                </style>
             </head>
             <body>
-                <h2>${poem.title}</h2>
-                <p>${poem.text}</p>
-                <p>Thank you for participating!</p>
+                <div class="email-container">
+                    <div class="email-header">
+                        <h1>Գիրք նվիրելու տոնի առթիվ</h1>
+                    </div>
+                    <div class="email-body">
+                        <h2>${poem.title}</h2>
+                        <p>${poem.text}</p>
+                        <p>Շնորհակալ եմ քեզ իմ բանաստեղծությունը կարդալու համար:</p>
+                        <p>Սիրով,<br>Ամենայն հայոց բանաստեղծ՝ Հովհաննես Թումանյան</p>
+                    </div>
+                </div>
             </body>
-        </html>`
+            </html>`
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -87,20 +145,48 @@ function sendEmail(email, poem) {
         }
     });
 }
-
 module.exports = async (req, res) => {
-    const { email } = req.body;
-    if (!email.endsWith('@edu.ysu.am')) {
+    // CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins or restrict to specific domains
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Allow specific methods
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); // Allow specific headers
+
+    // Handle OPTIONS preflight request
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    // Parse incoming JSON body
+    let email, hobbies, color;
+    try {
+        const { email: requestEmail, answers } = req.body;
+        email = requestEmail;
+        hobbies = answers.hobbies;
+        color = answers.color;
+    } catch (error) {
+        return res.status(400).json({ error: 'Invalid request format' });
+    }
+
+    // Validate email
+    if (!email || !email.endsWith('@edu.ysu.am')) {
         return res.status(400).json({ error: 'Only YSU emails are allowed' });
     }
 
+    // Check if the user has already participated
     const users = loadUsers();
     if (users[email]) {
         return res.status(400).json({ error: 'You have already participated' });
     }
 
+    // Select a random poem
     const poem = POEMS[Math.floor(Math.random() * POEMS.length)];
+
+    // Save the user's email to avoid duplicate submissions
     saveUser(email);
+
+    // Send the poem via email
     sendEmail(email, poem);
+
+    // Respond to the client
     res.status(200).json({ message: 'Poem has been sent to your email!' });
 };
