@@ -145,18 +145,16 @@ function sendEmail(email, poem) {
         }
     });
 }
-module.exports = async (req, res) => {
-    // CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins or restrict to specific domains
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Allow specific methods
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); // Allow specific headers
 
-    // Handle OPTIONS preflight request
+module.exports = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
-    // Parse incoming JSON body
     let email, hobbies, color;
     try {
         const { email: requestEmail, answers } = req.body;
@@ -167,26 +165,20 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Invalid request format' });
     }
 
-    // Validate email
     if (!email || !email.endsWith('@edu.ysu.am')) {
         return res.status(400).json({ error: 'Only YSU emails are allowed' });
     }
 
-    // Check if the user has already participated
     const users = loadUsers();
     if (users[email]) {
         return res.status(400).json({ error: 'You have already participated' });
     }
 
-    // Select a random poem
     const poem = POEMS[Math.floor(Math.random() * POEMS.length)];
 
-    // Save the user's email to avoid duplicate submissions
     saveUser(email);
 
-    // Send the poem via email
     sendEmail(email, poem);
 
-    // Respond to the client
     res.status(200).json({ message: 'Poem has been sent to your email!' });
 };
