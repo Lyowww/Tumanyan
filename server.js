@@ -42,7 +42,7 @@ function sendEmail(email, poem) {
         service: 'gmail',
         auth: {
             user: 'amenayn.banastexc@gmail.com',
-            pass: 'arbu uaoh hgle qqks'
+            pass: 'fzlj qfgm dsqf zstd'
         }
     });
 
