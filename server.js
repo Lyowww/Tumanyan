@@ -2,7 +2,6 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const cors = require('cors');
 
-const USERS_FILE = 'users.json';
 const POEMS = [
     {
         title: "Առաջին ձյունը",
@@ -34,26 +33,9 @@ const POEMS = [
     },
     {
         title: "Գրիչ",
-        text: `Ի՞նչ կլինի, ասա՛, գրի՛չ,<br>Ինձ էլ սիրես գոնե մի chút։<br>Ինչո՞ւ իմ մեծ քրոջ ձեռքին<br>Գրում ես միշտ վարժ ու կարգին,<br>Իսկ իմ ձեռքին խազմզում ես<br>Սև ագռավի ճանկերի պես։<br>Ես քեզ վատ բան ի՞նչ եմ արել։<br>Ե՛կ, խնդրում եմ, ինձ համար էլ<br>Գրիր էդպես արագ-արագ,<br>Էդպես ուղիղ, սիրուն, բարակ։<br>Գրիչը լուռ լսում-լսում,<br>Ճռճռում է ու խազմզում,<br>Բայց այս անգամ արդեն կարծես<br>Փոքրիկ ծտի ճանկերի պես։`
+        text: `Ի՞նչ կլինի, ասա՛, գրի՛չ,<br>Ինձ էլ սիրես գոնե մի chút։<br>Ինչո՞ւ իմ մեծ քրոջ ձեռքին<br>Գրում ես միշտ վարժ ու կարգին,<br>Իսկ իմ ձեռքին խազմզում ես<br>Սև ագռավի ճանկերի պես։<br>Ես քեզ վատ բան ի՞նչ եմ արել։<br>Է՛կ, խնդրում եմ, ինձ համար էլ<br>Գրիր էդպես արագ-արագ,<br>Էդպես ուղիղ, սիրուն, բարակ։<br>Գրիչը լուռ լսում-լսում,<br>Ճռճռում է ու խազմզում,<br>Բայց այս անգամ արդեն կարծես<br>Փոքրիկ ծտի ճանկերի պես։`
     }
 ];
-
-function loadUsers() {
-    if (!fs.existsSync(USERS_FILE)) return {};
-    try {
-        const data = fs.readFileSync(USERS_FILE, 'utf8');
-        return data ? JSON.parse(data) : {};
-    } catch (err) {
-        console.error("Error reading or parsing users file:", err);
-        return {};
-    }
-}
-
-function saveUser(email) {
-    const users = loadUsers();
-    users[email] = true;
-    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-}
 
 function sendEmail(email, poem) {
     const transporter = nodemailer.createTransport({
@@ -169,14 +151,7 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Only YSU emails are allowed' });
     }
 
-    const users = loadUsers();
-    if (users[email]) {
-        return res.status(400).json({ error: 'You have already participated' });
-    }
-
     const poem = POEMS[Math.floor(Math.random() * POEMS.length)];
-
-    saveUser(email);
 
     sendEmail(email, poem);
 
