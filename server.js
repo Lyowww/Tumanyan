@@ -119,13 +119,16 @@ function sendEmail(email, poem) {
             </html>`
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Error sending email:', error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
+transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+        console.error('Error sending email:', error);
+        res.status(500).json({ error: 'Failed to send email' });
+    } else {
+        console.log('Email sent: ' + info.response);
+        res.status(200).json({ message: 'Poem has been sent to your email!' });
+    }
+});
+
 }
 
 module.exports = async (req, res) => {
